@@ -1,5 +1,4 @@
-﻿using SFA.DAS.HashingService;
-using SFA.DAS.ProviderCommitments.Application.Commands.CreateCohort;
+﻿using SFA.DAS.ProviderCommitments.Application.Commands.CreateCohort;
 using SFA.DAS.ProviderCommitments.Web.Models;
 
 namespace SFA.DAS.ProviderCommitments.Web.Mappers
@@ -15,12 +14,16 @@ namespace SFA.DAS.ProviderCommitments.Web.Mappers
                 ReservationId = source.ReservationId,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
-                DateOfBirth = source.BirthDate.Date,
-                UniqueLearnerNumber = source.UniqueLearnerNumber,
+                BirthDay = source.BirthDay,
+                BirthMonth = source.BirthMonth,
+                BirthYear = source.BirthYear,
+                Uln = source.UniqueLearnerNumber,
                 CourseCode = source.CourseCode,
                 Cost = source.Cost,
-                StartDate = source.StartDate.Date,
-                EndDate = source.FinishDate.Date,
+                CourseStartMonth = source.StartMonth,
+                CourseStartYear = source.StartYear,
+                CourseEndMonth = source.FinishMonth,
+                CourseEndYear = source.FinishYear,
                 OriginatorReference = source.Reference
             };
         }

@@ -6,7 +6,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.HashingService;
 using SFA.DAS.ProviderCommitments.Application.Commands.CreateCohort;
 using SFA.DAS.ProviderCommitments.ModelBinding.Models;
 using SFA.DAS.ProviderCommitments.Web.Controllers;
@@ -86,8 +85,8 @@ namespace SFA.DAS.ProviderCommitments.Web.UnitTests.Controllers.UnapprovedContro
                 _linkGenerator.Setup(x => x.ProviderApprenticeshipServiceLink(It.IsAny<string>()))
                     .Returns(_linkGeneratorRedirectUrl)
                     .Callback((string value) => _linkGeneratorParameter = value);
-                    
-                
+
+
                 _controller = new UnapprovedController(_mediator.Object, _mapper.Object, _linkGenerator.Object);
             }
 

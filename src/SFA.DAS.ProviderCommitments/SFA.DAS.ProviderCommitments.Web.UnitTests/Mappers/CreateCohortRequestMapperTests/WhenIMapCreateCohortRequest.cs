@@ -1,6 +1,5 @@
 ﻿using System;
 using AutoFixture;
-using Moq;
 using NUnit.Framework;
 using SFA.DAS.ProviderCommitments.Application.Commands.CreateCohort;
 using SFA.DAS.ProviderCommitments.ModelBinding.Models;
@@ -42,7 +41,6 @@ namespace SFA.DAS.ProviderCommitments.Web.UnitTests.Mappers.CreateCohortRequestM
                 .With(x => x.FinishYear, endDate?.Year)
                 .With(x => x.StartMonth, startDate?.Month)
                 .With(x => x.StartYear, startDate?.Year)
-                .Without(x => x.StartDate)
                 .Without(x => x.Courses)
                 .Create();
 
@@ -64,17 +62,10 @@ namespace SFA.DAS.ProviderCommitments.Web.UnitTests.Mappers.CreateCohortRequestM
         }
 
         [Test]
-        public void ThenDateOfBirthIsMappedCorrectly()
-        {
-            var result = _act();
-            Assert.AreEqual(_source.BirthDate.Date, result.DateOfBirth);
-        }
-
-        [Test]
         public void ThenUniqueLearnerNumberIsMappedCorrectly()
         {
             var result = _act();
-            Assert.AreEqual(_source.UniqueLearnerNumber, result.UniqueLearnerNumber);
+            Assert.AreEqual(_source.UniqueLearnerNumber, result.Uln);
         }
 
         [Test]
@@ -89,20 +80,6 @@ namespace SFA.DAS.ProviderCommitments.Web.UnitTests.Mappers.CreateCohortRequestM
         {
             var result = _act();
             Assert.AreEqual(_source.Cost, result.Cost);
-        }
-
-        [Test]
-        public void ThenStartDateIsMappedCorrectly()
-        {
-            var result = _act();
-            Assert.AreEqual(_source.StartDate.Date, result.StartDate);
-        }
-
-        [Test]
-        public void ThenEndDateIsMappedCorrectly()
-        {
-            var result = _act();
-            Assert.AreEqual(_source.FinishDate.Date, result.EndDate);
         }
 
         [Test]

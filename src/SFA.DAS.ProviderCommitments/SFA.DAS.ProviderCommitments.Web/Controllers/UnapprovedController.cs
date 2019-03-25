@@ -1,10 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Validation;
 using SFA.DAS.ProviderCommitments.Domain_Models.ApprenticeshipCourse;
-using SFA.DAS.ProviderCommitments.Models;
 using SFA.DAS.ProviderCommitments.Queries.GetAccountLegalEntity;
 using SFA.DAS.ProviderCommitments.Queries.GetTrainingCourse;
 using SFA.DAS.ProviderCommitments.Queries.GetTrainingCourses;
@@ -45,7 +45,8 @@ namespace SFA.DAS.ProviderCommitments.Web.Controllers
             var model = new AddDraftApprenticeshipViewModel
             {
                 AccountLegalEntity = request.AccountLegalEntity,
-                StartDate = new MonthYearModel(request.StartMonthYear),
+                StartMonth = Convert.ToInt16(request.StartMonthYear.Substring(0,2)),
+                StartYear = Convert.ToInt16(request.StartMonthYear.Substring(2,4)),
                 ReservationId = request.ReservationId,
                 CourseCode = request.CourseCode
             };
@@ -59,13 +60,6 @@ namespace SFA.DAS.ProviderCommitments.Web.Controllers
         [Route("add-apprentice")]
         public async Task<IActionResult> AddDraftApprenticeship(AddDraftApprenticeshipViewModel model)
         {
-            // TODO this will probably need to be removed later (once validation is moved to API)
-            if (!ModelState.IsValid)
-            {
-                await AddEmployerAndCoursesToModel(model);
-                return View(model);
-            }
-
             var request = _createCohortRequestMapper.Map(model);
             request.UserId = User.Upn();
 
@@ -79,7 +73,7 @@ namespace SFA.DAS.ProviderCommitments.Web.Controllers
             }
             catch (CommitmentsApiModelException ex)
             {
-               ModelState.AddModelExceptionErrors(ex);
+                ModelState.AddModelExceptionErrors(ex);
 
                 await AddEmployerAndCoursesToModel(model);
                 return View(model);
@@ -99,11 +93,11 @@ namespace SFA.DAS.ProviderCommitments.Web.Controllers
             model.Courses = getCoursesTask.Result;
         }
 
-        private Task<GetAccountLegalEntityResponse>  GetEmployerIfRequired(long? accountLegalEntityId)
+        private Task<GetAccountLegalEntityResponse> GetEmployerIfRequired(long? accountLegalEntityId)
         {
             if (!accountLegalEntityId.HasValue)
             {
-                return Task.FromResult((GetAccountLegalEntityResponse) null);
+                return Task.FromResult((GetAccountLegalEntityResponse)null);
             }
 
             return _mediator.Send(new GetAccountLegalEntityRequest
@@ -119,7 +113,7 @@ namespace SFA.DAS.ProviderCommitments.Web.Controllers
                 return Task.FromResult((GetTrainingCourseResponse)null);
             }
 
-            return _mediator.Send(new GetTrainingCourseRequest { CourseCode = trainingCode});
+            return _mediator.Send(new GetTrainingCourseRequest { CourseCode = trainingCode });
         }
 
         private async Task<ICourse[]> GetCourses()

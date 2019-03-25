@@ -8,20 +8,16 @@ namespace SFA.DAS.ProviderCommitments.Application.Commands.CreateCohort
 {
     public class CreateCohortHandler : IRequestHandler<CreateCohortRequest, CreateCohortResponse>
     {
-        private readonly IValidator<CreateCohortRequest> _validator;
         private readonly ICommitmentsApiClient _apiClient;
 
-        public CreateCohortHandler(IValidator<CreateCohortRequest> validator, ICommitmentsApiClient apiClient)
+        public CreateCohortHandler(ICommitmentsApiClient apiClient)
         {
-            _validator = validator;
             _apiClient = apiClient;
         }
 
         public async Task<CreateCohortResponse> Handle(CreateCohortRequest request, CancellationToken cancellationToken)
         {
-            ValidateAndThrow(request);
-
-            var apiResult = await _apiClient.CreateCohort(Map(request), cancellationToken);
+            var apiResult = await _apiClient.CreateCohort(request, cancellationToken);
 
             return new CreateCohortResponse
             {
@@ -29,34 +25,5 @@ namespace SFA.DAS.ProviderCommitments.Application.Commands.CreateCohort
                 CohortReference = apiResult.CohortReference
             };
         }
-
-        private void ValidateAndThrow(CreateCohortRequest request)
-        {
-            var validationResult = _validator.Validate(request);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-        }
-
-        private static CommitmentsV2.Api.Types.Requests.CreateCohortRequest Map(CreateCohortRequest source)
-        {
-            return new CommitmentsV2.Api.Types.Requests.CreateCohortRequest
-            {  
-                UserId = source.UserId,
-                AccountLegalEntityId = source.AccountLegalEntityId,
-                ProviderId = source.ProviderId,
-                FirstName = source.FirstName,
-                LastName = source.LastName,
-                DateOfBirth = source.DateOfBirth,
-                ULN = source.UniqueLearnerNumber,
-                CourseCode = source.CourseCode,
-                Cost = source.Cost,
-                StartDate = source.StartDate,
-                EndDate = source.EndDate,
-                OriginatorReference = source.OriginatorReference,
-                ReservationId = source.ReservationId
-            };
-        }       
     }
 }

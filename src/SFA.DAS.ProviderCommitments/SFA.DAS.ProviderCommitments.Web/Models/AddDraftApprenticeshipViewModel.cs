@@ -2,19 +2,11 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using SFA.DAS.ProviderCommitments.Domain_Models.ApprenticeshipCourse;
 using SFA.DAS.ProviderCommitments.ModelBinding.Models;
-using SFA.DAS.ProviderCommitments.Models;
 
 namespace SFA.DAS.ProviderCommitments.Web.Models
 {
     public class AddDraftApprenticeshipViewModel
     {
-        public AddDraftApprenticeshipViewModel()
-        {
-            BirthDate = new DateModel(); 
-            FinishDate = new MonthYearModel("");
-            StartDate = new MonthYearModel("");
-        }
-
         public Guid ReservationId { get; set; }
         public int ProviderId { get; set; }
         public AccountLegalEntity AccountLegalEntity { get; set; }
@@ -31,18 +23,14 @@ namespace SFA.DAS.ProviderCommitments.Web.Models
         [MaxLength(100)]
         public string LastName { get; set; }
 
-        [Display(Name = "Date of birth")]
-        [DataType(DataType.Date)]
-        public DateModel BirthDate { get; }
-
         [Display(Name = "Day")]
-        public int? BirthDay { get => BirthDate.Day ; set => BirthDate.Day = value; }
+        public int? BirthDay { get; set; }
 
         [Display(Name = "Month")]
-        public int? BirthMonth { get => BirthDate.Month; set => BirthDate.Month = value; }
+        public int? BirthMonth { get; set; }
 
         [Display(Name = "Year")]
-        public int? BirthYear { get => BirthDate.Year; set => BirthDate.Year = value; }
+        public int? BirthYear { get; set; }
 
         [Display(Name = "Unique Learner Number (ULN)")]
         public string UniqueLearnerNumber { get; set; }
@@ -52,23 +40,17 @@ namespace SFA.DAS.ProviderCommitments.Web.Models
         [Display(Name = "Apprenticeship course")]
         public string CourseName { get; set; }
 
-        [Display(Name = "Planned training start date")]
-        public MonthYearModel StartDate { get; set; }
-
         [Display(Name = "Month")]
-        public int? StartMonth { get => StartDate.Month; set => StartDate.Month = value; }
+        public int? StartMonth { get; set; }
 
         [Display(Name = "Year")]
-        public int? StartYear { get => StartDate.Year; set => StartDate.Year = value; }
-
-        [Display(Name = "Projected finish date")]
-        public MonthYearModel FinishDate { get; }
+        public int? StartYear { get; set; }
 
         [Display(Name = "Month")]
-        public int? FinishMonth { get => FinishDate.Month; set => FinishDate.Month = value; }
+        public int? FinishMonth { get; set; }
 
         [Display(Name = "Year")]
-        public int? FinishYear { get => FinishDate.Year; set => FinishDate.Year = value; }
+        public int? FinishYear { get; set; }
 
         [Display(Name = "Total agreed apprenticeship price (excluding VAT)")]
         public int? Cost { get; set; }
