@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SFA.DAS.CommitmentsV2.Api.Client;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -30,14 +31,15 @@ namespace SFA.DAS.ProviderCommitments.Web.Mappers.Apprentice
             try
             {
                 var data = await GetApprenticeshipData(source.ApprenticeshipId);
-
+                var dataLockSummaryStatus = data.DataLocks.DataLocks.GetDataLockSummaryStatus();
+                
                 var allowEditApprentice =
                     (data.Apprenticeship.Status == ApprenticeshipStatus.Live ||
                      data.Apprenticeship.Status == ApprenticeshipStatus.WaitingToStart ||
                      data.Apprenticeship.Status == ApprenticeshipStatus.Paused) &&
                     !data.HasProviderUpdates && 
                     !data.HasEmployerUpdates &&
-                    data.DataLockStatus == DetailsViewModel.DataLockSummaryStatus.None;
+                    dataLockSummaryStatus == DetailsViewModel.DataLockSummaryStatus.None;
 
                 return new DetailsViewModel
                 {
@@ -59,7 +61,8 @@ namespace SFA.DAS.ProviderCommitments.Web.Mappers.Apprentice
                     AllowEditApprentice = allowEditApprentice,
                     HasProviderPendingUpdate = data.HasProviderUpdates,
                     HasEmployerPendingUpdate = data.HasEmployerUpdates,
-                    DataLockStatus = data.DataLockStatus
+                    DataLockStatus = dataLockSummaryStatus,
+                    AvailableTriageOption = CalcTriageStatus(data.Apprenticeship.HasHadDataLockSuccess, data.DataLocks.DataLocks)
                 };
             }
             catch (Exception e)
@@ -69,11 +72,35 @@ namespace SFA.DAS.ProviderCommitments.Web.Mappers.Apprentice
             }
         }
 
+        private static DetailsViewModel.TriageOption CalcTriageStatus(bool hasHadDataLockSuccess, IReadOnlyCollection<GetDataLocksResponse.DataLock> dataLocks)
+        {
+            if (!hasHadDataLockSuccess)
+            {
+                return DetailsViewModel.TriageOption.Update;
+            }
+
+            var dataLockErrors = dataLocks.Where(x => x.IsUnresolvedError()).ToList();
+
+            if (dataLockErrors.All(x => x.IsPrice()))
+                return  DetailsViewModel.TriageOption.Update;
+
+            if (dataLockErrors.Any(x => x.IsCourseAndPrice()))
+                return DetailsViewModel.TriageOption.Restart;
+
+            if (dataLockErrors.All(x => x.IsCourse()))
+                return DetailsViewModel.TriageOption.Restart;
+
+            if (dataLockErrors.All(x => x.IsCourseOrPrice()))
+                return DetailsViewModel.TriageOption.Both;
+
+            return DetailsViewModel.TriageOption.Update;
+        }
+
         private async Task<(GetApprenticeshipResponse Apprenticeship, 
             GetPriceEpisodesResponse PriceEpisodes, 
             bool HasProviderUpdates, 
             bool HasEmployerUpdates,
-            DetailsViewModel.DataLockSummaryStatus DataLockStatus)> 
+            GetDataLocksResponse DataLocks)> 
             GetApprenticeshipData(long apprenticeshipId)
         {
             var detailsResponseTask = _commitmentApiClient.GetApprenticeship(apprenticeshipId);
@@ -88,13 +115,13 @@ namespace SFA.DAS.ProviderCommitments.Web.Mappers.Apprentice
             var detailsResponse = await detailsResponseTask;
             var priceEpisodes = await priceEpisodesTask;
             var pendingUpdates = await pendingUpdatesTask;
-            var dataLocks = (await dataLocksTask).DataLocks;
+            var dataLocks = await dataLocksTask;
 
             return (detailsResponse, 
                 priceEpisodes, 
                 pendingUpdates.ApprenticeshipUpdates.Any(x => x.OriginatingParty == Party.Provider),
                 pendingUpdates.ApprenticeshipUpdates.Any(x => x.OriginatingParty == Party.Employer),
-                dataLocks.GetDataLockSummaryStatus());
+                dataLocks);
         }
     }
 }
