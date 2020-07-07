@@ -1,7 +1,9 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Shared.Models;
+using SFA.DAS.ProviderCommitments.Web.Extensions;
 
 namespace SFA.DAS.ProviderCommitments.Web.Models
 {
@@ -42,12 +44,15 @@ namespace SFA.DAS.ProviderCommitments.Web.Models
         public DateModel DateOfBirth { get; }
 
         [Display(Name = "Day")]
+        [BindProperty(BinderType = typeof(SilentModelBinder2))]
         public int? BirthDay { get => DateOfBirth.Day ; set => DateOfBirth.Day = value; }
 
         [Display(Name = "Month")]
+        [BindProperty(BinderType = typeof(SilentModelBinder2))]
         public int? BirthMonth { get => DateOfBirth.Month; set => DateOfBirth.Month = value; }
 
         [Display(Name = "Year")]
+        [BindProperty(BinderType = typeof(SilentModelBinder2))]
         public int? BirthYear { get => DateOfBirth.Year; set => DateOfBirth.Year = value; }
 
         [Display(Name = "Unique Learner Number (ULN)")]

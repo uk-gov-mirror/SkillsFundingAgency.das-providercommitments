@@ -16,8 +16,11 @@ using SFA.DAS.ProviderCommitments.Web.Extensions;
 using SFA.DAS.ProviderCommitments.Web.HealthChecks;
 using SFA.DAS.ProviderCommitments.Web.Validators;
 using SFA.DAS.CommitmentsV2.Shared.Extensions;
+using SFA.DAS.Encoding.Mvc;
 using StructureMap;
 using SFA.DAS.Provider.Shared.UI.Startup;
+using SFA.DAS.ProviderCommitments.Web.Attributes;
+using SFA.DAS.ProviderCommitments.Web.Encoding;
 using SFA.DAS.ProviderCommitments.Web.Filters;
 
 namespace SFA.DAS.ProviderCommitments.Web
@@ -53,6 +56,7 @@ namespace SFA.DAS.ProviderCommitments.Web
                     options.Filters.Add(new GoogleAnalyticsFilter());
                     options.AddValidation();
                     ConfigureAuthorization(options);
+                    options.AddAutoDecoder();
                 })
                 .AddNavigationBarSettings(Configuration)
                 .EnableGoogleAnalytics()
@@ -64,6 +68,8 @@ namespace SFA.DAS.ProviderCommitments.Web
             services
                 .AddUrlHelper()
                 .AddHealthChecks();
+
+            services.AddSingleton<IAutoDecodeMappingProvider, AutoDecodeMappingProvider>();
 
             services.Configure<CookieTempDataProviderOptions>(options =>
             {
